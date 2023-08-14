@@ -22,8 +22,8 @@ public:
     std::vector<Frame> frames;
     std::vector<Checkerboard> checkerboards;
     std::map<std::string, int> imgname_to_frameidx;
-    BundAdj6Dof::Config config;
-
+    //BundAdj6Dof::Config config;
+    Config config;
     void compute_center_dR_dt(double (&rvec_chb)[3], double (&tvec_chb)[3], Eigen::Matrix3d &dR, Eigen::Vector3d &dt) {
         Eigen::Vector3d r_chb(rvec_chb[0], rvec_chb[1], rvec_chb[2]);
 

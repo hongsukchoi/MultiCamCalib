@@ -2,7 +2,7 @@
 
 An example dataset can be found inside *"/example_data/"* folder:
 
-    {YOUR_ROOT}/
+    /home/hongsuk.c/Projects/MultiCamCalib/
     +-- example_data
     |   +-- images
     |   +-- image_paths.txt
@@ -29,11 +29,11 @@ First, modify the file *"/example_data/image_paths.txt"* which specifies input i
 
 Here, "<<>>" is used as a delimiter. Inside *image_paths.txt*,
 
-    0<<>>{YOUR_ROOT}\example_data\images\cam_0\0_0000.png
+    0<<>>/home/hongsuk.c/Projects/MultiCamCalib\example_data\images\cam_0\0_0000.png
     ...
-    15<<>>{YOUR_ROOT}\example_data\images\cam_15\15_0250.png
+    15<<>>/home/hongsuk.c/Projects/MultiCamCalib\example_data\images\cam_15\15_0250.png
 
-Replace *{YOUR_ROOT}* with your own *absolute* directory of the project. For me, *{YOUR_ROOT}* is *C:\Users\hjoon\Desktop\MultiCamCalib*,
+Replace */home/hongsuk.c/Projects/MultiCamCalib* with your own *absolute* directory of the project. For me, */home/hongsuk.c/Projects/MultiCamCalib* is *C:\Users\hjoon\Desktop\MultiCamCalib*,
 
     0<<>>C:\Users\hjoon\Desktop\MultiCamCalib\example_data\images\cam_0\0_0000.png
     ...
@@ -45,12 +45,12 @@ Second, modify two paths (*"abs_image_paths_file"* and *"abs_output_dir"*) insid
 
     {
     "paths": {
-        "abs_image_paths_file": "{YOUR_ROOT}/example_data/image_paths.txt",
-        "abs_output_dir": "{YOUR_ROOT}/example_data/output",
+        "abs_image_paths_file": "/home/hongsuk.c/Projects/MultiCamCalib/example_data/image_paths.txt",
+        "abs_output_dir": "/home/hongsuk.c/Projects/MultiCamCalib/example_data/output",
         ...
     }
 
-Again, replace *{YOUR_ROOT}* with your own *absolute* directory.
+Again, replace */home/hongsuk.c/Projects/MultiCamCalib* with your own *absolute* directory.
 
 This *config.json* file contains all the parameters needed by the project. Each part is explained [here](#s_config), but for now you can leave everything else as it is.
 
@@ -95,9 +95,9 @@ These are the only constraints required in this project.
 
 <h2 id="s_run">II. Run!</h2>
 
-Open up a command prompt and navigate to *"{YOUR_ROOT}/multicamcalib/"* where all the python codes reside and run *multicamcalib.py* with the installed Anaconda environment.
+Open up a command prompt and navigate to *"/home/hongsuk.c/Projects/MultiCamCalib/multicamcalib/"* where all the python codes reside and run *multicamcalib.py* with the installed Anaconda environment.
 
-    cd "{YOUR_ROOT}/multicamcalib"
+    cd "/home/hongsuk.c/Projects/MultiCamCalib/multicamcalib"
     conda activate {YOUR_ENV_NAME}
     python multicamcalib.py
 
@@ -129,53 +129,53 @@ The codes will execute all the steps from [(1). Corner detection](../readme.md#s
 
 **Once finished, the following results are saved:**
 
-* Initial/final camera configurations *"{YOUR_ROOT}/example_data/output/cam_params/"*:
+* Initial/final camera configurations *"/home/hongsuk.c/Projects/MultiCamCalib/example_data/output/cam_params/"*:
 
 <p style="text-align:left">
     <img src="./assets/tutorial/initial_cameras.png" width="40%"/>
     <img src="./assets/tutorial/final_cameras.png" width="40%"/>
 </p>
 
-* Initial/final camera configurations with the estimated checkerboard points *"{YOUR_ROOT}/example_data/output/world_points/"*:
+* Initial/final camera configurations with the estimated checkerboard points *"/home/hongsuk.c/Projects/MultiCamCalib/example_data/output/world_points/"*:
 
 <p style="text-align:left">
     <img src="./assets/tutorial/initial_world_points.png" width="40%"/>
     <img src="./assets/tutorial/final_world_points.png" width="40%"/>
 </p>
 
-* Images with large reprojection errors *"{YOUR_ROOT}/example_data/output/analysis/images/"*:
+* Images with large reprojection errors *"/home/hongsuk.c/Projects/MultiCamCalib/example_data/output/analysis/images/"*:
 <figure style="display:inline-block; display:block;" id="fig_reprojerrors">
     <img src="./assets/tutorial/reproj_err_img.jpg" width="80%"/>
 </figure>
 
-* Reprojection error historgram *"{YOUR_ROOT}/example_data/output/analysis/"*:
+* Reprojection error historgram *"/home/hongsuk.c/Projects/MultiCamCalib/example_data/output/analysis/"*:
 <figure style="display:inline-block; display:block;" id="fig_histogram">
     <img src="./assets/tutorial/reproj_err_histograms.png" width="80%"/>
 </figure>
 
 * VAE corner detector  
-  * train loss plot *"{YOUR_ROOT}/example_data/output/vae_outlier_detector/train_loss_plot.png"*:
+  * train loss plot *"/home/hongsuk.c/Projects/MultiCamCalib/example_data/output/vae_outlier_detector/train_loss_plot.png"*:
     <figure style="display:inline-block; display:block;" id="fig_histogram">
         <img src="./assets/tutorial/train_loss_plot.png" width="60%"/>
     </figure>
 
-  * outlier corners and their reconstructions *"{YOUR_ROOT}/example_data/output/vae_outlier_detector/outliers/"*:
+  * outlier corners and their reconstructions *"/home/hongsuk.c/Projects/MultiCamCalib/example_data/output/vae_outlier_detector/outliers/"*:
     <figure style="display:inline-block; display:block;" id="fig_histogram">
         <img src="./assets/tutorial/outliers_0.png" width="60%"/>
     </figure>
 
 **<h3>Note on step ***[4] FINAL CALIBRATION (BUNDLE ADJUSTMENT)***</h3>**
-Running code number 4 executes *"{YOUR_ROOT}/ceres_bundle_adjustment/build/bin/Release/CeresMulticamCalib.exe"*. If you do not see this folder, that means you have not compiled *"CeresMulticamCalib.exe"* yet. Follow [this tutorial](compile_project.md) before moving on.
+Running code number 4 executes *"/home/hongsuk.c/Projects/MultiCamCalib/ceres_bundle_adjustment/build/bin/Release/CeresMulticamCalib.exe"*. If you do not see this folder, that means you have not compiled *"CeresMulticamCalib.exe"* yet. Follow [this tutorial](compile_project.md) before moving on.
 
 <h2 id="s_config">III. config.json</h2>
 
-This section explains the parameters defined inside *"{YOUR_ROOT}/multicamcalib/config.json"*.
+This section explains the parameters defined inside *"/home/hongsuk.c/Projects/MultiCamCalib/multicamcalib/config.json"*.
 
 ***paths***
 
     "paths": {
-        "abs_image_paths_file": "{YOUR_ROOT}/example_data/image_paths.txt",
-        "abs_output_dir": "{YOUR_ROOT}/example_data/output",
+        "abs_image_paths_file": "/home/hongsuk.c/Projects/MultiCamCalib/example_data/image_paths.txt",
+        "abs_output_dir": "/home/hongsuk.c/Projects/MultiCamCalib/example_data/output",
         "logs": "logs",
         "corners": "corners",
         "vae_outlier_detector": "vae_outlier_detector",

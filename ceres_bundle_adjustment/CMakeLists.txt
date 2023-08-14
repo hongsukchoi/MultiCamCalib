@@ -12,7 +12,7 @@ set(PROJECT_OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PROJECT_OUTPUT_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_OUTPUT_DIR})
-
+set(Ceres_DIR "/home/hongsuk.c/ceres/ceres-install/lib/cmake/Ceres")
 
 #############################################
 if (WIN32)
@@ -32,9 +32,20 @@ if (WIN32)
     file(COPY ${DLL_PATHS}
         DESTINATION ${PROJECT_OUTPUT_DIR_RELEASE})
 endif()
+
+
 #############################################
 if (UNIX AND NOT APPLE)
-
+# copy dlls
+    set(CERES_ROOT_DIR "/home/hongsuk.c/ceres")
+    #set(SUITESPARSE_WIN_x64_DIR "${CERES_ROOT_DIR}/suitesparse/lapack_windows/x64")
+    #set(PROJECT_OUTPUT_DIR_RELEASE "${PROJECT_OUTPUT_DIR}/Release")
+    #set(DLL_PATHS
+    #    "${CERES_ROOT_DIR}/glog/install/bin/glog.dll"
+    #    "${CERES_ROOT_DIR}/glog/install/bin/glog.dll"
+    #)
+    #file(COPY ${DLL_PATHS}
+    #    DESTINATION ${PROJECT_OUTPUT_DIR_RELEASE})
 endif()
 #############################################
 

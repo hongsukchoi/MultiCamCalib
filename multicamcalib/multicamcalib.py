@@ -152,6 +152,9 @@ if __name__ == "__main__":
         if (code_number == "4"):
             # bundle adjustment (C/C++)
             bundle_adjustment_path = os.path.join("..", "ceres_bundle_adjustment", "build", "bin", "Release", "CeresMulticamCalib.exe")
+            bundle_adjustment_path = os.path.join(
+                "..", "ceres_bundle_adjustment", "build", "bin", "CeresMulticamCalib")
+
             assert os.path.exists(bundle_adjustment_path), "CeresMulticamCalib.exe does not exist!"
             os.system(bundle_adjustment_path)
 

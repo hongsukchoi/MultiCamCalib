@@ -25,8 +25,9 @@
 namespace Parser {
     rapidjson::Document readJson(const char*path) {
         FILE *fp;
-        errno_t err = fopen_s(&fp, path, READ_MODE);
-        
+        // error_t err = fopen_s(&fp, path, READ_MODE);
+        fp = fopen(path, READ_MODE);
+
         char read_buf[MAX_BUF];
         rapidjson::FileReadStream fs(fp, read_buf, sizeof(read_buf));
 
@@ -40,8 +41,9 @@ namespace Parser {
         doc.Parse(writer_buf.GetString());
 
         FILE* fp;
-        errno_t err = fopen_s(&fp, out_path, WRITE_MODE);
-        
+        // error_t err = fopen_s(&fp, out_path, WRITE_MODE);
+        fp = fopen(out_path, WRITE_MODE);
+
         char json_buf[MAX_BUF];
         rapidjson::FileWriteStream json_os(fp, json_buf, sizeof(json_buf));
         rapidjson::PrettyWriter<rapidjson::FileWriteStream> writer_fs(json_os);

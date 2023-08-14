@@ -18,7 +18,7 @@ def _draw_camera(ax, cam_idx, rvec, tvec, zorder=10, color="k"):
     
     rect = []
     for r in rect0:
-        rect.append(R_SE3@r + t_SE3)
+        rect.append(R_SE3 @ r + t_SE3)
     rect = np.float32(rect)
     ax.plot([rect[0, 0], rect[1,0]], [rect[0, 1], rect[1,1]], [rect[0, 2], rect[1,2]], c=color, zorder=zorder)
     ax.plot([rect[1, 0], rect[2,0]], [rect[1, 1], rect[2,1]], [rect[1, 2], rect[2,2]], c=color, zorder=zorder)
