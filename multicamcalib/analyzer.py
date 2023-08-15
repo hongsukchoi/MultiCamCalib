@@ -2,6 +2,7 @@ import numpy as np
 import json
 import cv2
 import os
+import glob
 import math
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -206,7 +207,13 @@ def render_reprojection_results(logger, paths, save_reproj_err_histogram=True, s
         os.makedirs(save_dir, exist_ok=True)
         logger.info("Saving images to: {}".format(save_dir))
 
-        img_paths = load_img_paths(paths["abs_image_paths_file"])
+        # img_paths = load_img_paths(paths["abs_image_paths_file"])
+        # Custom
+        img_paths = {}
+        for ci in range(7):
+            img_paths[ci] = sorted(glob.glob(
+                f'/home/hongsuk.c/Projects/MultiCamCalib/handnerf_calibration/images/cam_{ci}/*.jpg'))
+
         img_paths_lookup = {}
         for cam_idx, paths in img_paths.items():
             for p in paths:
@@ -228,7 +235,7 @@ def render_reprojection_results(logger, paths, save_reproj_err_histogram=True, s
             if err > error_thres:
                 pbar.update(1)
                 N_sqrt = np.sqrt(len(cam_params.keys()))
-                c = math.floor(N_sqrt)
+                c = math.floor(N_sqrt) + 1
                 if N_sqrt > c**2:
                     r = c+1
                 else:

@@ -152,7 +152,8 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
     
     for cam_idx_2 in adj_cam_indices:
         corner2_paths = glob.glob(os.path.join(os.path.join(corners_dir, "cam_{}".format(cam_idx_2)), "*.txt"))
-        cam_idx_1 = (cam_idx_2 + 1) if cam_idx_2 < center_cam_idx else cam_idx_2 - 1
+        # cam_idx_1 = (cam_idx_2 + 1) if cam_idx_2 < center_cam_idx else cam_idx_2 - 1
+        cam_idx_1 = center_cam_idx
         stereo_transformations[cam_idx_2] = {}
     
         corners_1 = []
@@ -177,6 +178,10 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
 
             pts_2, imageSize = load_corner_txt(corner_path_2)
             if pts_2 is None:
+                continue
+            
+            # custom
+            if len(pts_1) != 40 or len(pts_2) != 40:
                 continue
             
             corners_1.append(pts_1)
@@ -216,7 +221,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         p = cam_params[cam_idx_2]
         M_2 = np.float32([[p["fx"], 0, p["cx"]], [0, p["fy"], p["cy"]], [0, 0, 1]])
         d_2 = np.float32([p["k1"], p["k2"], p["p1"], p["p2"], p["k3"]])
-        import pdb; pdb.set_trace()
+
         ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts, _2d_pts_1, _2d_pts_2,
                                                                         M_1, d_1, M_2, d_2,
                                                                         imageSize, criteria=criteria, flags=flags)
@@ -240,9 +245,10 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
 
     for cam_idx in adj_cam_indices:
         assert(cam_idx != center_cam_idx)
-        if cam_idx == center_cam_idx - 1 or cam_idx == center_cam_idx + 1:
-            R, _ = cv2.Rodrigues(np.float32(cam_params[center_cam_idx]["rvec"]))
-            t = np.float32(cam_params[center_cam_idx]["tvec"]).reshape(3, 1)
+        # if cam_idx == center_cam_idx - 1 or cam_idx == center_cam_idx + 1:
+        # Custom
+        R, _ = cv2.Rodrigues(np.float32(cam_params[center_cam_idx]["rvec"]))
+        t = np.float32(cam_params[center_cam_idx]["tvec"]).reshape(3, 1)
 
         dR = stereo_transformations[cam_idx]["R"]
         dt = stereo_transformations[cam_idx]["t"]
