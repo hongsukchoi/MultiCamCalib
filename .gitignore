@@ -1,6 +1,9 @@
-__pycache__/
-.vs/
-.vscode/
-build/
-notebooks/
-output/
+*.png
+*.jpg
+*.out
+*.txt
+*.npy
+*.log
+*.pyc
+example_data/
+handnerf_calibration/

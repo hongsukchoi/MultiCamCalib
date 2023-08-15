@@ -52,7 +52,8 @@ def print_manual():
 
 if __name__ == "__main__":
     # load user-defined config
-    config = load_config("config.json")
+    config_file_name = "config.json"
+    config = load_config(config_file_name)
     paths = extract_paths(config["paths"])
 
     # initialize logger
@@ -75,14 +76,20 @@ if __name__ == "__main__":
     chb = Checkerboard(chb_config["n_cols"], chb_config["n_rows"], chb_config["sqr_size"])
 
     # load image paths
-    img_paths = load_img_paths(paths["abs_image_paths_file"])
+    if 'org' in config_file_name:
+        img_paths = load_img_paths(paths["abs_image_paths_file"])
+    else:
+        # Custom
+        img_paths = {}
+        for ci in range(config["cameras"]["n_cams"]):
+            img_paths[ci] = sorted(glob.glob(f'/home/hongsuk.c/Projects/MultiCamCalib/handnerf_calibration/images/cam_{ci}/*.jpg'))
 
     # initialize cameras from img_paths
     cameras = init_cameras(img_paths)
 
     # some shared variables
     vae = config["vae_outlier_detector"]
-    vae_config = {"z_dim": vae["z_dim"], "kl_weight": vae["kl_weight"], "lr": vae["lr"], "n_epochs": vae["n_epochs"], "batch_size": vae["batch_size"], "device": "cuda", "debug": False}
+    vae_config = {"crop_size": vae["crop_size"], "z_dim": vae["z_dim"], "kl_weight": vae["kl_weight"], "lr": vae["lr"], "n_epochs": vae["n_epochs"], "batch_size": vae["batch_size"], "device": "cuda", "debug": False}
     outlier_path = os.path.join(paths["outliers"], "outliers.json")
     cam_param_path = os.path.join(paths["cam_params"], "cam_params_final.json")
     world_points_path = os.path.join(paths["world_points"], "world_points_final.json")
@@ -122,7 +129,7 @@ if __name__ == "__main__":
 
         if (code_number == "2a") or (code_number == "2"):
             # generate corner crops
-            generate_crops_around_corners(logger, img_paths, paths)
+            generate_crops_around_corners(logger, img_paths, paths, crop_size=vae_config["crop_size"])
 
         if (code_number == "2b") or (code_number == "2"):
             # train vae

@@ -1,7 +1,7 @@
 {
     "paths": {
-        "abs_image_paths_file": "/home/hongsuk.c/Projects/MultiCamCalib/example_data/image_paths.txt",
-        "abs_output_dir": "/home/hongsuk.c/Projects/MultiCamCalib/example_data/output",
+        "abs_image_paths_file": "/home/hongsuk.c/Projects/MultiCamCalib/handnerf_calibration/image_paths.txt",
+        "abs_output_dir": "/home/hongsuk.c/Projects/MultiCamCalib/handnerf_calibration/output",
         "logs": "logs",
         "corners": "corners",
         "vae_outlier_detector": "vae_outlier_detector",
@@ -13,29 +13,39 @@
         "analysis": "analysis"
     },
     "checkerboard": {
-        "n_cols": 11,
-        "n_rows": 8,
-        "sqr_size": 60
+        "n_cols": 8,
+        "n_rows": 5,
+        "sqr_size": 40
     },
     "cameras": {
-        "n_cams": 16
+        "n_cams": 7
     },
     "vae_outlier_detector": {
+        "crop_size": 15,
         "z_dim": 2,
-        "kl_weight": 0.01,
-        "n_epochs": 500,
-        "lr": 0.001,
+        "kl_weight": 0.06,
+        "n_epochs": 700,
+        "lr": 0.005,
         "batch_size": 1000,
         "outlier_thres_ratio": 0.0005
     },
     "calib_initial": {
-        "center_cam_idx": 12,
+        "center_cam_idx": 3,
         "center_img_name": "0000",
         "intrinsics": {
             "n_max_imgs": 40
         },
         "extrinsics": {
-            "n_max_stereo_imgs": 3
+            "n_max_stereo_imgs": 3,
+            "adjacent_cam_ids": {
+                "0": [1,2,3,4,5,6],
+                "1": [0,3,4,5,6,7],
+                "2": [0,3,4,5,6,7],
+                "3": [0,1,2,4,5,6,7],
+                "4": [0,1,2,5,6,7],
+                "5": [0,1,2,3,4,6,7],
+                "6": [0,1,2,3,4,5,7]
+            }
         }
     },
     "bundle_adjustment": {

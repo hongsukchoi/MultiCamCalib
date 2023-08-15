@@ -31,3 +31,4 @@ tzdata
   # - vs2015_runtime
 wheel
 
+opencv-contrib-python 

@@ -62,6 +62,8 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         _2d_pts = []
 
         imageSize = None
+        # Custom
+        min_num_corners = 10**5
         for corner_path in corner_paths:
             fname = os.path.basename(corner_path).split(".")[0]
             if fname in outliers:
@@ -72,12 +74,35 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             corners, imageSizeCurr = load_corner_txt(corner_path) # imageSize: (h, w)
 
             if corners is not None:
+                if len(corners) != 40:
+                    continue
+
+                # if len(corners) < min_num_corners:
+                #     continue
+                # _2d_pts.append(corners[:min_num_corners])  
                 _2d_pts.append(corners)
                 imageSize = imageSizeCurr
                 if len(_2d_pts) == calib_config["intrinsics"]["n_max_imgs"]:
                     break
-        _2d_pts = np.float32(_2d_pts)
+                
+                if len(corners) < min_num_corners:
+                    min_num_corners = len(corners)
 
+        # new_corners = []
+        # for corners in _2d_pts:
+        #     new_corners.append(corners[:min_num_corners])
+        # import pdb; pdb.set_trace()
+        # _2d_pts = new_corners
+        # Need to make full 2d points or
+        # since the charuco board can be occluded or truncated..
+        # use this approach
+        # map the 2d points to the 3d points with ids saved. need to save and load ids too..
+        # but the bundle adjustment part seems to assume all corners are detected..
+        # not correlated with bundle adjustment c++ code
+        # but this issue is correlated with below "stereo calibration between the adjacent cameras"
+        # just interpolate initially at the corner detection?
+        # nrows - 1, ncols-1
+        _2d_pts = np.float32(_2d_pts)
         # (3D) stack chb points
         _3d_pts = np.float32([chb.chb_pts for _ in range(len(_2d_pts))])
 
@@ -191,6 +216,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         p = cam_params[cam_idx_2]
         M_2 = np.float32([[p["fx"], 0, p["cx"]], [0, p["fy"], p["cy"]], [0, 0, 1]])
         d_2 = np.float32([p["k1"], p["k2"], p["p1"], p["p2"], p["k3"]])
+        import pdb; pdb.set_trace()
         ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts, _2d_pts_1, _2d_pts_2,
                                                                         M_1, d_1, M_2, d_2,
                                                                         imageSize, criteria=criteria, flags=flags)
