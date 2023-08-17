@@ -211,8 +211,8 @@ def render_reprojection_results(logger, paths, save_reproj_err_histogram=True, s
         # Custom
         img_paths = {}
         for ci in range(7):
-            img_paths[ci] = sorted(glob.glob(
-                f'/home/hongsuk.c/Projects/MultiCamCalib/handnerf_calibration/images/cam_{ci}/*.jpg'))
+            img_paths[ci] = sorted(glob.glob(os.path.join(
+                paths["abs_input_dir"], f'images/cam_{ci}/*.jpg')))
 
         img_paths_lookup = {}
         for cam_idx, paths in img_paths.items():

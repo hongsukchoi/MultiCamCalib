@@ -6,4 +6,4 @@
 *.log
 *.pyc
 example_data/
-handnerf_calibration/
+data/

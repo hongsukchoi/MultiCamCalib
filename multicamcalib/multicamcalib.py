@@ -82,7 +82,7 @@ if __name__ == "__main__":
         # Custom
         img_paths = {}
         for ci in range(config["cameras"]["n_cams"]):
-            img_paths[ci] = sorted(glob.glob(f'/home/hongsuk.c/Projects/MultiCamCalib/handnerf_calibration/images/cam_{ci}/*.jpg'))
+            img_paths[ci] = sorted(glob.glob(os.path.join(paths["abs_input_dir"], f'images/cam_{ci}/*.jpg')))
 
     # initialize cameras from img_paths
     cameras = init_cameras(img_paths)

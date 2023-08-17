@@ -114,10 +114,10 @@ def detect_corners(g_logger, lock, chb, img_paths, paths, shared_log_path, use_t
     threads = []
     for cam_idx, img_path in img_paths.items():
         # no multi thread
-        output_folder = os.path.join(paths["corners"], "cam_{}".format(cam_idx))
-        os.makedirs(output_folder, exist_ok=True)
-        __corner_detector(g_logger, lock, cam_idx, chb.n_cols, chb.n_rows, chb.charuco_grid_board, img_path, output_folder, paths["logs"], shared_log_path)
-        continue
+        # output_folder = os.path.join(paths["corners"], "cam_{}".format(cam_idx))
+        # os.makedirs(output_folder, exist_ok=True)
+        # __corner_detector(g_logger, lock, cam_idx, chb.n_cols, chb.n_rows, chb.charuco_grid_board, img_path, output_folder, paths["logs"], shared_log_path)
+        # continue
         if use_threads:
             __write_cornerdet_completion_log(lock, shared_log_path, cam_idx, False)
 

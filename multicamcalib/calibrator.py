@@ -75,6 +75,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
 
             if corners is not None:
                 if len(corners) != 40:
+                    import pdb; pdb.set_trace()
                     continue
 
                 # if len(corners) < min_num_corners:
