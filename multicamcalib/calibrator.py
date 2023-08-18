@@ -114,7 +114,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         logger.info("Intrinsics calibrated: camera {} | {} images | error={:.2f}".format(cam_idx, len(_3d_pts), rms_err))
 
         # we assume the lens is not fisheye -> let's set lens distortion coefficients to zeros.
-        d_scaler = 0.
+        d_scaler = 1.
         if rms_err:
             cam_params[cam_idx]["fx"] = M[0, 0]
             cam_params[cam_idx]["fy"] = M[1, 1]
@@ -267,11 +267,17 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             stereo_transformations[cam_idx_2]["t"] = dt.reshape(3, 1)
 
             # import pdb; pdb.set_trace()
+
+
             # debug
             _3d_pts = chb.chb_pts
             p1 = cam_params[cam_idx_1]
             M1 = np.float32([[p1["fx"], 0, p1["cx"]], [0, p1["fy"], p1["cy"]], [0, 0, 1]])
             d1 = np.float32([p1["k1"], p1["k2"], p1["p1"], p1["p2"], p1["k3"]])
+            p2 = cam_params[cam_idx_2]
+            M2 = np.float32([[p2["fx"], 0, p2["cx"]], [0, p2["fy"], p2["cy"]], [0, 0, 1]])
+            d2 = np.float32([p2["k1"], p2["k2"], p2["p1"], p2["p2"], p2["k3"]])
+
             idx = 0
             _2d_pts_1 = _2d_pts_1[idx]
             _2d_pts_2 = _2d_pts_2[idx]
@@ -282,30 +288,42 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             img_path_2 = corner_path_2.replace("output/corners", "images").replace(".txt", ".jpg")
 
 
-            ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts_1, M1, d1)
+            ret, rvec1, tvec1 = cv2.solvePnP(_3d_pts, _2d_pts_1, M1, d1)
+            ret, rvec2, tvec2 = cv2.solvePnP(_3d_pts, _2d_pts_2, M2, d2)
+            # get transformation that brings cam2 point to the cam1
+            # cam2 to the board doordinate
+            r2, _ = cv2.Rodrigues(rvec2)
+            r2 = r2.T
+            t2 = -r2@tvec2
+            # board coordinate to cam 1
+            r1, _ = cv2.Rodrigues(rvec1)
+            cam2_to_cam1_R = r1 @ r2
+            cam2_to_cam1_t = r1 @ t2 + tvec1
+
             img = cv2.imread(img_path_1)
-            cv2.drawFrameAxes(img, M, d, rvec, tvec, 100)
+            cv2.drawFrameAxes(img, M, d, rvec1, tvec1, 100)
             img = vis_keypoints(img, _2d_pts_1)
             cv2.imshow(f"Check cam {cam_idx_1} board pose", img)
+            print(corner_path_1)
 
-            # extrinsics of current camera
-            p2 = cam_params[cam_idx_2]
-            M2 = np.float32([[p2["fx"], 0, p2["cx"]], [0, p2["fy"], p2["cy"]], [0, 0, 1]])
-            d2 = np.float32([p2["k1"], p2["k2"], p2["p1"], p2["p2"], p2["k3"]])
-            ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts_2, M2, d2)
-
+     
             img = cv2.imread(img_path_2)
-            cv2.drawFrameAxes(img, M2, d2, rvec, tvec, 100)
+            cv2.drawFrameAxes(img, M2, d2, rvec2, tvec2, 100)
             img = vis_keypoints(img, _2d_pts_2)
             cv2.imshow(f"Check cam {cam_idx_2} board pose", img)
-            
-            dR = dR.T
-            dt = -dR@dt
-            rvec, _ = cv2.Rodrigues(dR@cv2.Rodrigues(rvec)[0])
-            tvec = dR@tvec + dt
+            print(corner_path_2)
+
+            # dR = dR.T
+            # dt = -dR@dt
+
+            dR = cam2_to_cam1_R
+            dt = cam2_to_cam1_t
+
+            rvec2, _ = cv2.Rodrigues(dR@cv2.Rodrigues(rvec2)[0])
+            tvec2 = dR@tvec2 + dt
 
             img = cv2.imread(img_path_1)
-            cv2.drawFrameAxes(img, M1, d1, rvec, tvec, 100)
+            cv2.drawFrameAxes(img, M1, d1, rvec2, tvec2, 100)
             cv2.imshow(f"Check cam {cam_idx_2} board pose to cam {cam_idx_1}", img)
 
             cv2.waitKey(0)
