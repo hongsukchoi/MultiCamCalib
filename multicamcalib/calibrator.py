@@ -114,7 +114,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         logger.info("Intrinsics calibrated: camera {} | {} images | error={:.2f}".format(cam_idx, len(_3d_pts), rms_err))
 
         # we assume the lens is not fisheye -> let's set lens distortion coefficients to zeros.
-        d_scaler = 1
+        d_scaler = 0.
         if rms_err:
             cam_params[cam_idx]["fx"] = M[0, 0]
             cam_params[cam_idx]["fy"] = M[1, 1]
@@ -227,8 +227,8 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         _3d_pts = np.float32([chb.chb_pts for _ in range(len(corners_1))])
 
         flags = 0
-        # flags |= cv2.CALIB_FIX_INTRINSIC  # we already have intrinsics (initial values)
-        flags |= cv2.CALIB_USE_INTRINSIC_GUESS # optmize intrinsics
+        flags |= cv2.CALIB_FIX_INTRINSIC  # we already have intrinsics (initial values)
+        # flags |= cv2.CALIB_USE_INTRINSIC_GUESS # optmize intrinsics
         # flags |= cv2.CALIB_FIX_PRINCIPAL_POINT
         # flags |= cv2.CALIB_FIX_FOCAL_LENGTH
         flags |= cv2.CALIB_FIX_ASPECT_RATIO
@@ -253,9 +253,10 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         M_2 = np.float32([[p["fx"], 0, p["cx"]], [0, p["fy"], p["cy"]], [0, 0, 1]])
         d_2 = np.float32([p["k1"], p["k2"], p["p1"], p["p2"], p["k3"]])
 
-        ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts, _2d_pts_1, _2d_pts_2,
-                                                                        M_1, d_1, M_2, d_2,
-                                                                        imageSize, criteria=criteria, flags=flags)
+        # ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(
+        #     _3d_pts, _2d_pts_1, _2d_pts_2, M_1, d_1, M_2, d_2, imageSize, criteria=criteria, flags=flags)
+
+        ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts[0:1], _2d_pts_1[0:1], _2d_pts_2[0:1], M_1, d_1, M_2, d_2, imageSize, criteria=criteria, flags=flags)
         logger.info("Stereo-calibrated: camera {} & {} | {} images | error={:.2f}".format(cam_idx_1, cam_idx_2, len(corners_1), ret))
 
         if ret:
@@ -284,8 +285,8 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts_1, M1, d1)
             img = cv2.imread(img_path_1)
             cv2.drawFrameAxes(img, M, d, rvec, tvec, 100)
+            img = vis_keypoints(img, _2d_pts_1)
             cv2.imshow(f"Check cam {cam_idx_1} board pose", img)
-            cv2.waitKey(0)
 
             # extrinsics of current camera
             p2 = cam_params[cam_idx_2]
@@ -293,18 +294,23 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             d2 = np.float32([p2["k1"], p2["k2"], p2["p1"], p2["p2"], p2["k3"]])
             ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts_2, M2, d2)
 
+            img = cv2.imread(img_path_2)
+            cv2.drawFrameAxes(img, M2, d2, rvec, tvec, 100)
+            img = vis_keypoints(img, _2d_pts_2)
+            cv2.imshow(f"Check cam {cam_idx_2} board pose", img)
+            
             dR = dR.T
             dt = -dR@dt
             rvec, _ = cv2.Rodrigues(dR@cv2.Rodrigues(rvec)[0])
             tvec = dR@tvec + dt
 
-            try:
-                img = cv2.imread(img_path_1)
-                cv2.drawFrameAxes(img, M2, d2, rvec, tvec, 100)
-                cv2.imshow(f"Check cam {cam_idx_2} board pose", img)
-                cv2.waitKey(0)
-            except:
-                import pdb; pdb.set_trace()
+            img = cv2.imread(img_path_1)
+            cv2.drawFrameAxes(img, M1, d1, rvec, tvec, 100)
+            cv2.imshow(f"Check cam {cam_idx_2} board pose to cam {cam_idx_1}", img)
+
+            cv2.waitKey(0)
+
+
             import pdb; pdb.set_trace()
 
         else:
