@@ -20,7 +20,7 @@ mapper = {
 
 if __name__ == '__main__':
     data_dir = "../data/validation"
-    calibration_path = "../data/handnerf_intrinsics/output/cam_params/cam_params_initial.json"
+    calibration_path = "../data/handnerf_intrinsics/output/cam_params/cam_params_final.json"
 
     # read calibration data
     with open(calibration_path, 'r') as f:
@@ -45,6 +45,8 @@ if __name__ == '__main__':
     cam_pairs = []
     for i in range(0, num_cams):
         for j in range(i+1, num_cams):
+            # if i in [0,2] or j in [0,2]:
+            #     continue
             cam_pairs.append((i,j))
 
     for data_idx in range(num_data):
@@ -68,7 +70,15 @@ if __name__ == '__main__':
                 # intrinsics
                 intrinsics = o3d.camera.PinholeCameraIntrinsic()
                 width, height = 1280, 720
-                intrinsics.set_intrinsics(width, height, calib['fx'], calib['fy'], calib['cx'], calib['cy'])
+                if cam_idx in [0,2]:
+                    x_scale = 640 / 1280
+                    y_scale = 480 / 720 
+
+                    intrinsics.set_intrinsics(
+                        int(width * x_scale), int(height * y_scale),
+                          calib['fx'] * x_scale, calib['fy'] * y_scale, calib['cx'] * x_scale, calib['cy'] * y_scale)
+                else:
+                    intrinsics.set_intrinsics(width, height, calib['fx'], calib['fy'], calib['cx'], calib['cy'])
 
                 # extrinsics
                 rvec, tvec = calib['rvec'], calib['tvec'] # (3,) (3,)

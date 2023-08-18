@@ -313,9 +313,11 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             cv2.imshow(f"Check cam {cam_idx_2} board pose", img)
             print(corner_path_2)
 
+            # use opencv stereocalibration
             # dR = dR.T
             # dt = -dR@dt
 
+            # use board pose
             dR = cam2_to_cam1_R
             dt = cam2_to_cam1_t
 
@@ -325,11 +327,16 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             img = cv2.imread(img_path_1)
             cv2.drawFrameAxes(img, M1, d1, rvec2, tvec2, 100)
             cv2.imshow(f"Check cam {cam_idx_2} board pose to cam {cam_idx_1}", img)
-
             cv2.waitKey(0)
-
-
-            import pdb; pdb.set_trace()
+            
+            # custom
+            dR = cam2_to_cam1_R
+            dt = cam2_to_cam1_t
+            dR = dR.T
+            dt = -dR@dt
+           
+            stereo_transformations[cam_idx_2]["R"] = dR
+            stereo_transformations[cam_idx_2]["t"] = dt.reshape(3, 1)
 
         else:
             logger.error("Stereo calibration between cam {} and cam {} FAILED!".format(cam_idx_1, cam_idx_2))
