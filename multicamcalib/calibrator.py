@@ -234,7 +234,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         flags |= cv2.CALIB_FIX_ASPECT_RATIO
         flags |= cv2.CALIB_ZERO_TANGENT_DIST
         # flags |= cv2.CALIB_RATIONAL_MODEL
-        flags |= cv2.CALIB_SAME_FOCAL_LENGTH
+        # flags |= cv2.CALIB_SAME_FOCAL_LENGTH  # Don't do this!!!
         # flags |= cv2.CALIB_FIX_K1
         # flags |= cv2.CALIB_FIX_K2
         # flags |= cv2.CALIB_FIX_K3
@@ -253,10 +253,9 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         M_2 = np.float32([[p["fx"], 0, p["cx"]], [0, p["fy"], p["cy"]], [0, 0, 1]])
         d_2 = np.float32([p["k1"], p["k2"], p["p1"], p["p2"], p["k3"]])
 
-        # ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(
-        #     _3d_pts, _2d_pts_1, _2d_pts_2, M_1, d_1, M_2, d_2, imageSize, criteria=criteria, flags=flags)
+        ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts, _2d_pts_1, _2d_pts_2, M_1, d_1, M_2, d_2, imageSize, criteria=criteria, flags=flags)
 
-        ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts[0:1], _2d_pts_1[0:1], _2d_pts_2[0:1], M_1, d_1, M_2, d_2, imageSize, criteria=criteria, flags=flags)
+        # ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts[0:1], _2d_pts_1[0:1], _2d_pts_2[0:1], M_1, d_1, M_2, d_2, imageSize, criteria=criteria, flags=flags)
         logger.info("Stereo-calibrated: camera {} & {} | {} images | error={:.2f}".format(cam_idx_1, cam_idx_2, len(corners_1), ret))
 
         if ret:
@@ -314,12 +313,12 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             print(corner_path_2)
 
             # use opencv stereocalibration
-            # dR = dR.T
-            # dt = -dR@dt
+            dR = dR.T
+            dt = -dR@dt
 
-            # use board pose
-            dR = cam2_to_cam1_R
-            dt = cam2_to_cam1_t
+            # # use board pose
+            # dR = cam2_to_cam1_R
+            # dt = cam2_to_cam1_t
 
             rvec2, _ = cv2.Rodrigues(dR@cv2.Rodrigues(rvec2)[0])
             tvec2 = dR@tvec2 + dt
@@ -328,7 +327,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             cv2.drawFrameAxes(img, M1, d1, rvec2, tvec2, 100)
             cv2.imshow(f"Check cam {cam_idx_2} board pose to cam {cam_idx_1}", img)
             cv2.waitKey(0)
-            
+
             # custom
             dR = cam2_to_cam1_R
             dt = cam2_to_cam1_t

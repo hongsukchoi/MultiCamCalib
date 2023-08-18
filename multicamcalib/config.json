@@ -36,7 +36,7 @@
             "n_max_imgs": 40
         },
         "extrinsics": {
-            "n_max_stereo_imgs": 3
+            "n_max_stereo_imgs": 5
         }
     },
     "bundle_adjustment": {
