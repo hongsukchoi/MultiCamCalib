@@ -114,7 +114,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         logger.info("Intrinsics calibrated: camera {} | {} images | error={:.2f}".format(cam_idx, len(_3d_pts), rms_err))
 
         # we assume the lens is not fisheye -> let's set lens distortion coefficients to zeros.
-        d_scaler = 0.0
+        d_scaler = 1
         if rms_err:
             cam_params[cam_idx]["fx"] = M[0, 0]
             cam_params[cam_idx]["fy"] = M[1, 1]
@@ -127,7 +127,22 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             cam_params[cam_idx]["k3"] = d[0, 4]*d_scaler
         else:
             cam_params[cam_idx] = None
-            
+    
+    # # TEMP
+    # if os.path.exists(cam_param_save_path):
+    #     print("Load intrinsics from ", cam_param_save_path)
+    #     with open(cam_param_save_path, 'r') as f:
+    #         cam_params = json.load(f)
+    #     new_cam_params = {}
+    #     for cam_idx, v in cam_params.items():
+    #         new_cam_params[int(cam_idx)] = v
+    #     cam_params = new_cam_params
+    # else:
+    #     # Custom save
+    #     print("Save intrinsics to ", cam_param_save_path)
+    #     with open(cam_param_save_path, "w") as f:
+    #         json.dump(cam_params, f, indent=4)
+
     # calibrate extrinsics
     # 1. pnp for the center image
     corner_path = os.path.join(corners_dir, "cam_{}".format(center_cam_idx), "{}_{}.txt".format(center_cam_idx, center_img_name))
@@ -143,6 +158,15 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
     ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts, M, d)
     cam_params[center_cam_idx]["rvec"] = rvec.flatten().tolist()
     cam_params[center_cam_idx]["tvec"] = tvec.flatten().tolist()
+    
+    # debug
+    # img_path = os.path.join(paths["abs_input_dir"], "images", f"cam_{center_cam_idx}", f"{center_cam_idx}_{center_img_name}.jpg")
+    # img = cv2.imread(img_path)
+    # cv2.drawFrameAxes(img, M, d, rvec, tvec, 100)
+    # cv2.imshow("Check main cam board pose", img)
+    # cv2.waitKey(0)
+
+    # import pdb; pdb.set_trace()
 
     # 2. stereo calibration between the adjacent cameras
     stereo_transformations = {}
@@ -153,12 +177,15 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
     
     for cam_idx_2 in adj_cam_indices:
         corner2_paths = glob.glob(os.path.join(os.path.join(corners_dir, "cam_{}".format(cam_idx_2)), "*.txt"))
-        # cam_idx_1 = (cam_idx_2 + 1) if cam_idx_2 < center_cam_idx else cam_idx_2 - 1
+        cam_idx_1 = (cam_idx_2 + 1) if cam_idx_2 < center_cam_idx else cam_idx_2 - 1
+        # custom
         cam_idx_1 = center_cam_idx
         stereo_transformations[cam_idx_2] = {}
     
         corners_1 = []
         corners_2 = []
+        corner_path_list1 = []
+        corner_path_list2 = []
         for corner_path_2 in corner2_paths:
             img_name = os.path.basename(corner_path_2).split(".")[0].split("_")[-1]
             fname_1 = "{}_{}".format(cam_idx_1, img_name)
@@ -187,6 +214,9 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             
             corners_1.append(pts_1)
             corners_2.append(pts_2)
+            # debug
+            corner_path_list1.append(corner_path_1)
+            corner_path_list2.append(corner_path_2)
 
             if len(corners_1) == calib_config["extrinsics"]["n_max_stereo_imgs"]:
                 break
@@ -234,6 +264,49 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             # t2 = dR@t1 + dt 
             stereo_transformations[cam_idx_2]["R"] = dR
             stereo_transformations[cam_idx_2]["t"] = dt.reshape(3, 1)
+
+            # import pdb; pdb.set_trace()
+            # debug
+            _3d_pts = chb.chb_pts
+            p1 = cam_params[cam_idx_1]
+            M1 = np.float32([[p1["fx"], 0, p1["cx"]], [0, p1["fy"], p1["cy"]], [0, 0, 1]])
+            d1 = np.float32([p1["k1"], p1["k2"], p1["p1"], p1["p2"], p1["k3"]])
+            idx = 0
+            _2d_pts_1 = _2d_pts_1[idx]
+            _2d_pts_2 = _2d_pts_2[idx]
+
+            corner_path_1 = corner_path_list1[idx]
+            corner_path_2 = corner_path_list2[idx]
+            img_path_1 = corner_path_1.replace("output/corners", "images").replace(".txt", ".jpg")
+            img_path_2 = corner_path_2.replace("output/corners", "images").replace(".txt", ".jpg")
+
+
+            ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts_1, M1, d1)
+            img = cv2.imread(img_path_1)
+            cv2.drawFrameAxes(img, M, d, rvec, tvec, 100)
+            cv2.imshow(f"Check cam {cam_idx_1} board pose", img)
+            cv2.waitKey(0)
+
+            # extrinsics of current camera
+            p2 = cam_params[cam_idx_2]
+            M2 = np.float32([[p2["fx"], 0, p2["cx"]], [0, p2["fy"], p2["cy"]], [0, 0, 1]])
+            d2 = np.float32([p2["k1"], p2["k2"], p2["p1"], p2["p2"], p2["k3"]])
+            ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts_2, M2, d2)
+
+            dR = dR.T
+            dt = -dR@dt
+            rvec, _ = cv2.Rodrigues(dR@cv2.Rodrigues(rvec)[0])
+            tvec = dR@tvec + dt
+
+            try:
+                img = cv2.imread(img_path_1)
+                cv2.drawFrameAxes(img, M2, d2, rvec, tvec, 100)
+                cv2.imshow(f"Check cam {cam_idx_2} board pose", img)
+                cv2.waitKey(0)
+            except:
+                import pdb; pdb.set_trace()
+            import pdb; pdb.set_trace()
+
         else:
             logger.error("Stereo calibration between cam {} and cam {} FAILED!".format(cam_idx_1, cam_idx_2))
             logger.error('  Perhaps try different values for configs["calib_initial"]["extrinsics"]["n_max_stereo_imgs"].')
@@ -246,7 +319,10 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
 
     for cam_idx in adj_cam_indices:
         assert(cam_idx != center_cam_idx)
+
         # if cam_idx == center_cam_idx - 1 or cam_idx == center_cam_idx + 1:
+        #     R, _ = cv2.Rodrigues(np.float32(cam_params[center_cam_idx]["rvec"]))
+        #     t = np.float32(cam_params[center_cam_idx]["tvec"]).reshape(3, 1)
         # Custom
         R, _ = cv2.Rodrigues(np.float32(cam_params[center_cam_idx]["rvec"]))
         t = np.float32(cam_params[center_cam_idx]["tvec"]).reshape(3, 1)
