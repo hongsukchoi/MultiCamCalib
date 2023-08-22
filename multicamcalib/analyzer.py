@@ -207,7 +207,6 @@ def render_reprojection_results(logger, paths, save_reproj_err_histogram=True, s
         os.makedirs(save_dir, exist_ok=True)
         logger.info("Saving images to: {}".format(save_dir))
 
-        # img_paths = load_img_paths(paths["abs_image_paths_file"])
         # Custom
         img_paths = {}
         for ci in range(7):
