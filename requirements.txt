@@ -2,33 +2,21 @@
 cycler
 icu
 intel-openmp
-
 kiwisolver
 lerc
-
 libclang
-
 matplotlib
 mkl
 numpy
 olefile
-
 pillow
-
 pyparsing
-
-
 setuptools
 six
-
 tbb
 tk
 tornado
 tqdm
 tzdata
-  # - ucrt
-  # - vc
-  # - vs2015_runtime
 wheel
-
 opencv-contrib-python 

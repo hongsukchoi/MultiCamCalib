@@ -1,7 +1,7 @@
 {
     "paths": {
-        "abs_input_dir": "/home/hongsuk.c/Projects/MultiCamCalib/data/handnerf_intrinsics",
-        "abs_output_dir": "/home/hongsuk.c/Projects/MultiCamCalib/data/handnerf_intrinsics/output",
+        "abs_input_dir": "/home/hongsuk.c/Projects/MultiCamCalib/data/handnerf_0818",
+        "abs_output_dir": "/home/hongsuk.c/Projects/MultiCamCalib/data/handnerf_0818/output",
         "logs": "logs",
         "corners": "corners",
         "vae_outlier_detector": "vae_outlier_detector",
@@ -30,8 +30,8 @@
         "outlier_thres_ratio": 0.005
     },
     "calib_initial": {
-        "center_cam_idx": 1,
-        "center_img_name": "0216",
+        "center_cam_idx": 3,
+        "center_img_name": "0000",
         "intrinsics": {
             "n_max_imgs": 40
         },

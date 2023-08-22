@@ -62,8 +62,6 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         _2d_pts = []
 
         imageSize = None
-        # Custom
-        min_num_corners = 10**5
         for corner_path in corner_paths:
             fname = os.path.basename(corner_path).split(".")[0]
             if fname in outliers:
@@ -78,31 +76,12 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
                     import pdb; pdb.set_trace()
                     continue
 
-                # if len(corners) < min_num_corners:
-                #     continue
-                # _2d_pts.append(corners[:min_num_corners])  
                 _2d_pts.append(corners)
                 imageSize = imageSizeCurr
                 if len(_2d_pts) == calib_config["intrinsics"]["n_max_imgs"]:
                     break
                 
-                if len(corners) < min_num_corners:
-                    min_num_corners = len(corners)
 
-        # new_corners = []
-        # for corners in _2d_pts:
-        #     new_corners.append(corners[:min_num_corners])
-        # import pdb; pdb.set_trace()
-        # _2d_pts = new_corners
-        # Need to make full 2d points or
-        # since the charuco board can be occluded or truncated..
-        # use this approach
-        # map the 2d points to the 3d points with ids saved. need to save and load ids too..
-        # but the bundle adjustment part seems to assume all corners are detected..
-        # not correlated with bundle adjustment c++ code
-        # but this issue is correlated with below "stereo calibration between the adjacent cameras"
-        # just interpolate initially at the corner detection?
-        # nrows - 1, ncols-1
         _2d_pts = np.float32(_2d_pts)
         # (3D) stack chb points
         _3d_pts = np.float32([chb.chb_pts for _ in range(len(_2d_pts))])
@@ -127,21 +106,6 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             cam_params[cam_idx]["k3"] = d[0, 4]*d_scaler
         else:
             cam_params[cam_idx] = None
-    
-    # # TEMP
-    # if os.path.exists(cam_param_save_path):
-    #     print("Load intrinsics from ", cam_param_save_path)
-    #     with open(cam_param_save_path, 'r') as f:
-    #         cam_params = json.load(f)
-    #     new_cam_params = {}
-    #     for cam_idx, v in cam_params.items():
-    #         new_cam_params[int(cam_idx)] = v
-    #     cam_params = new_cam_params
-    # else:
-    #     # Custom save
-    #     print("Save intrinsics to ", cam_param_save_path)
-    #     with open(cam_param_save_path, "w") as f:
-    #         json.dump(cam_params, f, indent=4)
 
     # calibrate extrinsics
     # 1. pnp for the center image
@@ -158,15 +122,6 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
     ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts, M, d)
     cam_params[center_cam_idx]["rvec"] = rvec.flatten().tolist()
     cam_params[center_cam_idx]["tvec"] = tvec.flatten().tolist()
-    
-    # debug
-    # img_path = os.path.join(paths["abs_input_dir"], "images", f"cam_{center_cam_idx}", f"{center_cam_idx}_{center_img_name}.jpg")
-    # img = cv2.imread(img_path)
-    # cv2.drawFrameAxes(img, M, d, rvec, tvec, 100)
-    # cv2.imshow("Check main cam board pose", img)
-    # cv2.waitKey(0)
-
-    # import pdb; pdb.set_trace()
 
     # 2. stereo calibration between the adjacent cameras
     stereo_transformations = {}
@@ -254,7 +209,6 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         d_2 = np.float32([p["k1"], p["k2"], p["p1"], p["p2"], p["k3"]])
 
         ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts, _2d_pts_1, _2d_pts_2, M_1, d_1, M_2, d_2, imageSize, criteria=criteria, flags=flags)
-
         # ret, mtx_1, dist_1, mtx_2, dist_2, dR, dt, E, F = cv2.stereoCalibrate(_3d_pts[0:1], _2d_pts_1[0:1], _2d_pts_2[0:1], M_1, d_1, M_2, d_2, imageSize, criteria=criteria, flags=flags)
         logger.info("Stereo-calibrated: camera {} & {} | {} images | error={:.2f}".format(cam_idx_1, cam_idx_2, len(corners_1), ret))
 
@@ -265,77 +219,74 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
             stereo_transformations[cam_idx_2]["R"] = dR
             stereo_transformations[cam_idx_2]["t"] = dt.reshape(3, 1)
 
-            # import pdb; pdb.set_trace()
+            # # debug
+            # _3d_pts = chb.chb_pts
+            # p1 = cam_params[cam_idx_1]
+            # M1 = np.float32([[p1["fx"], 0, p1["cx"]], [0, p1["fy"], p1["cy"]], [0, 0, 1]])
+            # d1 = np.float32([p1["k1"], p1["k2"], p1["p1"], p1["p2"], p1["k3"]])
+            # p2 = cam_params[cam_idx_2]
+            # M2 = np.float32([[p2["fx"], 0, p2["cx"]], [0, p2["fy"], p2["cy"]], [0, 0, 1]])
+            # d2 = np.float32([p2["k1"], p2["k2"], p2["p1"], p2["p2"], p2["k3"]])
+
+            # idx = 0
+            # _2d_pts_1 = _2d_pts_1[idx]
+            # _2d_pts_2 = _2d_pts_2[idx]
+
+            # corner_path_1 = corner_path_list1[idx]
+            # corner_path_2 = corner_path_list2[idx]
+            # img_path_1 = corner_path_1.replace("output/corners", "images").replace(".txt", ".jpg")
+            # img_path_2 = corner_path_2.replace("output/corners", "images").replace(".txt", ".jpg")
 
 
-            # debug
-            _3d_pts = chb.chb_pts
-            p1 = cam_params[cam_idx_1]
-            M1 = np.float32([[p1["fx"], 0, p1["cx"]], [0, p1["fy"], p1["cy"]], [0, 0, 1]])
-            d1 = np.float32([p1["k1"], p1["k2"], p1["p1"], p1["p2"], p1["k3"]])
-            p2 = cam_params[cam_idx_2]
-            M2 = np.float32([[p2["fx"], 0, p2["cx"]], [0, p2["fy"], p2["cy"]], [0, 0, 1]])
-            d2 = np.float32([p2["k1"], p2["k2"], p2["p1"], p2["p2"], p2["k3"]])
+            # ret, rvec1, tvec1 = cv2.solvePnP(_3d_pts, _2d_pts_1, M1, d1)
+            # ret, rvec2, tvec2 = cv2.solvePnP(_3d_pts, _2d_pts_2, M2, d2)
+            # # get transformation that brings cam2 point to the cam1
+            # # cam2 to the board doordinate
+            # r2, _ = cv2.Rodrigues(rvec2)
+            # r2 = r2.T
+            # t2 = -r2@tvec2
+            # # board coordinate to cam 1
+            # r1, _ = cv2.Rodrigues(rvec1)
+            # cam2_to_cam1_R = r1 @ r2
+            # cam2_to_cam1_t = r1 @ t2 + tvec1
 
-            idx = 0
-            _2d_pts_1 = _2d_pts_1[idx]
-            _2d_pts_2 = _2d_pts_2[idx]
-
-            corner_path_1 = corner_path_list1[idx]
-            corner_path_2 = corner_path_list2[idx]
-            img_path_1 = corner_path_1.replace("output/corners", "images").replace(".txt", ".jpg")
-            img_path_2 = corner_path_2.replace("output/corners", "images").replace(".txt", ".jpg")
-
-
-            ret, rvec1, tvec1 = cv2.solvePnP(_3d_pts, _2d_pts_1, M1, d1)
-            ret, rvec2, tvec2 = cv2.solvePnP(_3d_pts, _2d_pts_2, M2, d2)
-            # get transformation that brings cam2 point to the cam1
-            # cam2 to the board doordinate
-            r2, _ = cv2.Rodrigues(rvec2)
-            r2 = r2.T
-            t2 = -r2@tvec2
-            # board coordinate to cam 1
-            r1, _ = cv2.Rodrigues(rvec1)
-            cam2_to_cam1_R = r1 @ r2
-            cam2_to_cam1_t = r1 @ t2 + tvec1
-
-            img = cv2.imread(img_path_1)
-            cv2.drawFrameAxes(img, M, d, rvec1, tvec1, 100)
-            img = vis_keypoints(img, _2d_pts_1)
-            cv2.imshow(f"Check cam {cam_idx_1} board pose", img)
-            print(corner_path_1)
+            # img = cv2.imread(img_path_1)
+            # cv2.drawFrameAxes(img, M, d, rvec1, tvec1, 100)
+            # img = vis_keypoints(img, _2d_pts_1)
+            # cv2.imshow(f"Check cam {cam_idx_1} board pose", img)
+            # print(corner_path_1)
 
      
-            img = cv2.imread(img_path_2)
-            cv2.drawFrameAxes(img, M2, d2, rvec2, tvec2, 100)
-            img = vis_keypoints(img, _2d_pts_2)
-            cv2.imshow(f"Check cam {cam_idx_2} board pose", img)
-            print(corner_path_2)
+            # img = cv2.imread(img_path_2)
+            # cv2.drawFrameAxes(img, M2, d2, rvec2, tvec2, 100)
+            # img = vis_keypoints(img, _2d_pts_2)
+            # cv2.imshow(f"Check cam {cam_idx_2} board pose", img)
+            # print(corner_path_2)
 
-            # use opencv stereocalibration
-            dR = dR.T
-            dt = -dR@dt
+            # # use opencv stereocalibration
+            # dR = dR.T
+            # dt = -dR@dt
 
-            # # use board pose
+            # # # use board pose
+            # # dR = cam2_to_cam1_R
+            # # dt = cam2_to_cam1_t
+
+            # rvec2, _ = cv2.Rodrigues(dR@cv2.Rodrigues(rvec2)[0])
+            # tvec2 = dR@tvec2 + dt
+
+            # img = cv2.imread(img_path_1)
+            # cv2.drawFrameAxes(img, M1, d1, rvec2, tvec2, 100)
+            # cv2.imshow(f"Check cam {cam_idx_2} board pose to cam {cam_idx_1}", img)
+            # cv2.waitKey(0)
+
+            # # custom
             # dR = cam2_to_cam1_R
             # dt = cam2_to_cam1_t
-
-            rvec2, _ = cv2.Rodrigues(dR@cv2.Rodrigues(rvec2)[0])
-            tvec2 = dR@tvec2 + dt
-
-            img = cv2.imread(img_path_1)
-            cv2.drawFrameAxes(img, M1, d1, rvec2, tvec2, 100)
-            cv2.imshow(f"Check cam {cam_idx_2} board pose to cam {cam_idx_1}", img)
-            cv2.waitKey(0)
-
-            # custom
-            dR = cam2_to_cam1_R
-            dt = cam2_to_cam1_t
-            dR = dR.T
-            dt = -dR@dt
+            # dR = dR.T
+            # dt = -dR@dt
            
-            stereo_transformations[cam_idx_2]["R"] = dR
-            stereo_transformations[cam_idx_2]["t"] = dt.reshape(3, 1)
+            # stereo_transformations[cam_idx_2]["R"] = dR
+            # stereo_transformations[cam_idx_2]["t"] = dt.reshape(3, 1)
 
         else:
             logger.error("Stereo calibration between cam {} and cam {} FAILED!".format(cam_idx_1, cam_idx_2))

@@ -75,14 +75,10 @@ if __name__ == "__main__":
     chb_config = config["checkerboard"]
     chb = Checkerboard(chb_config["n_cols"], chb_config["n_rows"], chb_config["sqr_size"])
 
-    # load image paths
-    if 'org' in config_file_name:
-        img_paths = load_img_paths(paths["abs_image_paths_file"])
-    else:
-        # Custom
-        img_paths = {}
-        for ci in range(config["cameras"]["n_cams"]):
-            img_paths[ci] = sorted(glob.glob(os.path.join(paths["abs_input_dir"], f'images/cam_{ci}/*.jpg')))
+    # Custom
+    img_paths = {}
+    for ci in range(config["cameras"]["n_cams"]):
+        img_paths[ci] = sorted(glob.glob(os.path.join(paths["abs_input_dir"], f'images/cam_{ci}/*.jpg')))
 
     # initialize cameras from img_paths
     cameras = init_cameras(img_paths)

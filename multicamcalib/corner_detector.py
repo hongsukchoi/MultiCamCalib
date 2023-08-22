@@ -7,7 +7,7 @@ import copy
 import time
 from logger import init_logger
 
-def __corner_detector(g_logger, lock, cam_idx, n_cols, n_rows, board_grid, paths, output_folder, log_dir, shared_log_path):
+def __corner_detector(g_logger, lock, cam_idx, n_cols, n_rows, paths, output_folder, log_dir, shared_log_path):
     logger = init_logger("cornerdetect_cam{}".format(cam_idx), log_dir, init_file_handler=True, init_console_handler=False)
     logger.info("Corner detection - START\t: camera {}\t| {} images".format(cam_idx, len(paths)))
     g_logger.info("Corner detection - START\t: camera {}\t| {} images".format(cam_idx, len(paths)))
@@ -40,45 +40,7 @@ def __corner_detector(g_logger, lock, cam_idx, n_cols, n_rows, board_grid, paths
         # flags = cv2.CALIB_CB_ADAPTIVE_THRESH + cv2.CALIB_CB_FAST_CHECK + cv2.CALIB_CB_NORMALIZE_IMAGE
         flags = cv2.CALIB_CB_FAST_CHECK
         found, corners = cv2.findChessboardCorners(img, (n_cols, n_rows), flags=flags)
-        """ Custom """
-        """
-        arucocorners, arucoids, rejected = cv2.aruco.detectMarkers(img, cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_5X5_100))
-        # found, corners = False, None
-        if arucoids is None or len(arucocorners) == 0:
-            pass
-        else:
-            # from matplotlib import pyplot as plt
-            # if len(arucocorners) > 0:
-            #     arucocorners = np.concatenate([np.array(arucocorners), np.array(rejected)])
-            #     imgmarkers = copy.deepcopy(img)
-            #     cv2.aruco.drawDetectedMarkers(imgmarkers, arucocorners, arucoids)
-            #     cv2.imwrite(f'aruco_markers_{os.path.basename(path)}', imgmarkers)
-
-            #     plt.imshow(imgmarkers)
-            #     plt.show()
-            #     # plt.savefig(f'aruco_corners_{os.path.basename(path)}')
-            # import pdb
-            # pdb.set_trace()
-
-            (
-            num_corners,
-            interpolated_corners,
-            interpolated_ids,
-            ) = cv2.aruco.interpolateCornersCharuco(arucocorners, arucoids, img, board_grid)
-
-            if num_corners == 0:
-                pass
-            else:
-                # ids: 0~87 inside corners. 8*11
-                corners = interpolated_corners
-                ids = interpolated_ids
-                debug_image = copy.deepcopy(img)
-                debug_image = cv2.aruco.drawDetectedCornersCharuco(debug_image, corners, ids, (0, 0, 255))
-                cv2.imwrite(f'aruco_corners_{os.path.basename(path)}', debug_image)
-
-                found = True
-        """
-
+        
         output_str = []
         if found:
             output_str.append("1 {} {}".format(img_original.shape[0], img_original.shape[1]))
@@ -113,18 +75,13 @@ def __corner_detector(g_logger, lock, cam_idx, n_cols, n_rows, board_grid, paths
 def detect_corners(g_logger, lock, chb, img_paths, paths, shared_log_path, use_threads=True, log=True):
     threads = []
     for cam_idx, img_path in img_paths.items():
-        # no multi thread
-        # output_folder = os.path.join(paths["corners"], "cam_{}".format(cam_idx))
-        # os.makedirs(output_folder, exist_ok=True)
-        # __corner_detector(g_logger, lock, cam_idx, chb.n_cols, chb.n_rows, chb.charuco_grid_board, img_path, output_folder, paths["logs"], shared_log_path)
-        # continue
         if use_threads:
             __write_cornerdet_completion_log(lock, shared_log_path, cam_idx, False)
 
             # output folder
             output_folder = os.path.join(paths["corners"], "cam_{}".format(cam_idx))
             os.makedirs(output_folder, exist_ok=True)
-            threads.append(threading.Thread(target=__corner_detector, args=(g_logger, lock, cam_idx, chb.n_cols, chb.n_rows, chb.charuco_grid_board, img_path, output_folder, paths["logs"], shared_log_path)))
+            threads.append(threading.Thread(target=__corner_detector, args=(g_logger, lock, cam_idx, chb.n_cols, chb.n_rows, img_path, output_folder, paths["logs"], shared_log_path)))
 
     for thread in threads:
         thread.start()
