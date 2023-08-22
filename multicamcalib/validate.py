@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # read images
     rgb_paths = defaultdict(list)
     depth_paths = defaultdict(list)
-    start_cam, end_cam = 1, 5
+    start_cam, end_cam = 1, 6
     num_data = 1
 
     for cam_idx in range(start_cam,end_cam+1):

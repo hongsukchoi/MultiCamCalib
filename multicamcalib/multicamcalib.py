@@ -173,7 +173,6 @@ if __name__ == "__main__":
         if (code_number == "5b") or (code_number == "5"):
             reprojection_save_path = os.path.join(paths["analysis"], "reprojections.json")
             is_finished = reproject_world_points(logger, cam_param_path, world_points_path, paths, reprojection_save_path=reprojection_save_path)
-
             if is_finished:
                 analysis_config = config["analysis"]
                 save_reproj_images = analysis_config["save_reproj_images"]
@@ -182,3 +181,4 @@ if __name__ == "__main__":
                 render_reprojection_results(logger, paths, save_reproj_err_histogram=save_reproj_err_histogram, save_reproj_images=save_reproj_images, error_thres=error_thres)
     
     logger.info("***** FINISHED *****\n")
+    # output_cam0to6_usecenter

@@ -18,7 +18,7 @@
         "sqr_size": 40
     },
     "cameras": {
-        "n_cams": 6
+        "n_cams": 7
     },
     "vae_outlier_detector": {
         "crop_size": 15,
