@@ -5,8 +5,6 @@ import open3d as o3d
 import cv2
 import numpy as np
 from collections import defaultdict
-from PIL import Image
-
 
 
 if __name__ == '__main__':
@@ -32,21 +30,9 @@ if __name__ == '__main__':
         )  # for depth
 
 
-
-    # cam_pairs = []
-    # for i in range(start_cam, end_cam+1):
-    #     for j in range(i+1, end_cam+1):
-    #         # if i in [0,2] or j in [0,2]:
-    #         #     continue
-    #         cam_pairs.append((i,j))
-
     for data_idx in range(num_data):
         print("Scene ", data_idx)
         
-
-        # for pair in cam_pairs:
-        #     print("Pair ", pair)
-       
         pointcloud_list = []
         for cam_idx in [1,2,3,4,5]:
             print("Cam idx: ", cam_idx)
@@ -56,12 +42,12 @@ if __name__ == '__main__':
             print(rgb_path, depth_path)
             color_raw = o3d.io.read_image(rgb_path)
             depth_raw = o3d.io.read_image(depth_path)
-            rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(color_raw, depth_raw)
-            # depth_image = np.asarray(Image.open(depth_path)).astype(np.uint16)
-            # o3d_depth = o3d.geometry.Image(depth_image)
+            rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(color_raw, depth_raw,
+                                    depth_scale=1000.0, depth_trunc=3.0, convert_rgb_to_intensity=False)
 
             # prepare intrinsics and extrinsics for open3d
             calib = calibratoin_data[str(cam_idx)]
+
             # intrinsics
             intrinsics = o3d.camera.PinholeCameraIntrinsic()
             width, height = 1280, 720
@@ -77,16 +63,8 @@ if __name__ == '__main__':
             extrinsics[:3, :3] = R
             extrinsics[:3, 3:] = t
 
-            color = np.asarray(Image.open(rgb_path)).astype('float').reshape(-1, 3) 
-            pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image,   intrinsics, extrinsics)
-            # pcd_new = o3d.geometry.PointCloud(o3d.utility.Vector3dVector(np.asarray(pcd.points)))
-            # pcd_new.colors = o3d.utility.Vector3dVector(color)
-            # pcd = o3d.geometry.PointCloud.create_from_depth_image(
-            #     o3d_depth, intrinsic=intrinsics, extrinsic=extrinsics, depth_scale=1000.0, depth_trunc=2.5)
-            # pcd.colors = o3d.utility.Vector3dVector(np.asarray(color_raw).astype(float).reshape(-1,3) / 255)
-            # pcd.transform([[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]])
+            pcd = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd_image,  intrinsics, extrinsics)
             pointcloud_list.append(pcd)
+
         o3d.visualization.draw_geometries(pointcloud_list)
 
-        # import pdb
-        # pdb.set_trace()
