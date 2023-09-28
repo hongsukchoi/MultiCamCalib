@@ -81,8 +81,14 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
                 imageSize = imageSizeCurr
                 if len(_2d_pts) == calib_config["intrinsics"]["n_max_imgs"]:
                     break
-                
+        
+        # custom
+        if cam_idx == 0: # wrist cam
+            wrist_idxs = random.sample(list(range(len(_2d_pts))), 3)
+            print("DEBUG: ", wrist_idxs)
+            _2d_pts = np.array(_2d_pts)[wrist_idxs].tolist()
 
+            
         _2d_pts = np.float32(_2d_pts)
         # (3D) stack chb points
         _3d_pts = np.float32([chb.chb_pts for _ in range(len(_2d_pts))])
@@ -123,6 +129,14 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
     ret, rvec, tvec = cv2.solvePnP(_3d_pts, _2d_pts, M, d)
     cam_params[center_cam_idx]["rvec"] = rvec.flatten().tolist()
     cam_params[center_cam_idx]["tvec"] = tvec.flatten().tolist()
+    
+    # # debug
+    # img_path = os.path.join(paths["abs_input_dir"], "images", f"cam_{center_cam_idx}", f"{center_cam_idx}_{center_img_name}.jpg")
+    # img = cv2.imread(img_path)
+    # cv2.drawFrameAxes(img, M, d, rvec, tvec, 100)
+    # cv2.imshow("Check main cam board pose", img)
+    # cv2.waitKey(0)
+    # import pdb; pdb.set_trace()
 
     # 2. stereo calibration between the adjacent cameras
     stereo_transformations = {}
@@ -134,8 +148,11 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
     for cam_idx_2 in adj_cam_indices:
         corner2_paths = glob.glob(os.path.join(os.path.join(corners_dir, "cam_{}".format(cam_idx_2)), "*.txt"))
         cam_idx_1 = (cam_idx_2 + 1) if cam_idx_2 < center_cam_idx else cam_idx_2 - 1
+        
         # custom
         cam_idx_1 = center_cam_idx
+        # cam_idx_1 = calib_config["adj_graph"][str(cam_idx_2)]
+        
         stereo_transformations[cam_idx_2] = {}
     
         corners_1 = []
@@ -229,6 +246,16 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
     R, _ = cv2.Rodrigues(np.float32(cam_params[center_cam_idx]["rvec"]))
     t = np.float32(cam_params[center_cam_idx]["tvec"]).reshape(3, 1)
 
+    """ hard coding
+    "0": 2,
+    "1": 0,
+    "3": 1,
+    "6": 3,
+    "4": 6,
+    "5": 4,
+    "2": 5 
+    """
+    # adj_cam_indices = [6, 4, 5, 2, 0, 1]
     for cam_idx in adj_cam_indices:
         assert(cam_idx != center_cam_idx)
 

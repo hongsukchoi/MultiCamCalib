@@ -166,6 +166,8 @@ if __name__ == "__main__":
             compute_reproj_errs = True
             cam_param_path = os.path.join(paths["cam_params"], "cam_params_final.json")
             world_points_path = os.path.join(paths["world_points"], "world_points_final.json")
+            # custom
+            # save_path_world_points = None
             render_config(paths, cam_param_path, center_cam_idx, center_img_name, None, "Final cameras", compute_reproj_errs=compute_reproj_errs, save_path=save_path_cam_config)
             render_config(paths, cam_param_path, center_cam_idx, center_img_name, world_points_path, "Final configuration", compute_reproj_errs=compute_reproj_errs, save_path=save_path_world_points)
             logger.info("Two plots saved:\n\t{}\n\t{}".format(save_path_cam_config, save_path_world_points))
