@@ -1,5 +1,9 @@
-# Ceres installation - Linux (using Ubuntu 18.04.5 LTS)
-## 1. Install all the dependencies following the [official guide](http://ceres-solver.org/installation.html).
+# Ceres installation - Linux 
+
+The most secure way of the installation is following the [official guide](http://ceres-solver.org/installation.html).
+The below steps are just for reference, which are tested on Ubuntu 20.04.5 LTS on 09/29/2023.
+
+## 1. Install all the dependencies.
     # CMake
     sudo apt-get install cmake
 
@@ -17,15 +21,17 @@
 
 ## 2. Download ceres 
 
-    git clone https://ceres-solver.googlesource.com/ceres-solver
+    wget http://ceres-solver.org/ceres-solver-2.1.0.tar.gz
 
-## 3. Navigate to the cloned *ceres-solver* folder and cmake 
+## 3. Install ceres 
     
-    cd {root}/ceres-solver
-    mkdir build
-    cd build
-    cmake ..
+    tar zxf ceres-solver-2.1.0.tar.gz
+    mkdir ceres-bin
+    cd ceres-bin
+    cmake ../ceres-solver-2.1.0
     make -j3
-    sudo make install
-
-<b>For my PC, `{root}` is `~/Desktop`.
+    make test
+    # Optionally install Ceres, it can also be exported using CMake which
+    # allows Ceres to be used without requiring installation, see the documentation
+    # for the EXPORT_BUILD_DIR option for more information.
+    make install

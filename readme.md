@@ -49,7 +49,7 @@ The code execution follows the pipeline below:
 
 <label id="install_ceres">(2)</label> Install Ceres
 * Click [here](docs/install_windows.md) for **Windows**
-* Click here for **Linux** (coming)
+* Click [here](docs/install_linux.md) for **Linux** 
 
 (3) Build the bundle adjustment project (C/C++)
 
