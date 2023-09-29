@@ -1,3 +1,12 @@
+# Disclaimer
+
+This repository is slightly modified from the original multi-view camera calibration repository [here](https://github.com/hjoonpark/MultiCamCalib/tree/master) to make it work in Linux environment and a more sparse view setting (7 RealSense 435 cameras, no depth used, highly different viewing angles).
+
+I (Hongsuk Choi) only modified a small portion of
+- Installation guidelines for Linux environment
+- C++ code of Ceres bundle adjustment
+- Initial multi-view calibration before bundle adjustment
+
 
 <h1>Table of Contents</h1>
 
@@ -78,7 +87,7 @@ The code execution follows the pipeline below:
 
 <h2 id="s_example">4. Tutorial</h2>
 
-Follow [this quick start tutorial (a step-by-step example)](docs/tutorial.md)
+Follow [this quick start tutorial (a step-by-step example)](docs/tutorial.md). After you calibration your own data, it is highly recommended to validate the result by stitching point clouds, if you have depth images. Refer to the `./multicamcalib/valdiate.py` 
 
 <h2 id="s_details">5. Academical details</h2>
 

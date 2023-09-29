@@ -59,5 +59,9 @@ strings /lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX
         cmake ..
 
     Make the exectuable *CeresMulticamCalib*
-    
+
         make
+
+    Replace `ROOT_DIR` of `/path/to/ceres_bundle_adjustment/config.h` in L6
+
+        L6: #define ROOT_DIR "/home/hongsuk.c/Projects/MultiCamCalib/ceres_bundle_adjustment"
