@@ -1,7 +1,7 @@
 {
     "paths": {
-        "abs_input_dir": "/home/hongsuk.c/Projects/MultiCamCalib/data/handnerf_0818",
-        "abs_output_dir": "/home/hongsuk.c/Projects/MultiCamCalib/data/handnerf_0818/output",
+        "abs_input_dir": "/home/hongsuk.c/Projects/MultiCamCalib/data/handnerf_09282023",
+        "abs_output_dir": "/home/hongsuk.c/Projects/MultiCamCalib/data/handnerf_09282023/output",
         "logs": "logs",
         "corners": "corners",
         "vae_outlier_detector": "vae_outlier_detector",
@@ -18,7 +18,7 @@
         "sqr_size": 40
     },
     "cameras": {
-        "n_cams": 6
+        "n_cams": 7
     },
     "vae_outlier_detector": {
         "crop_size": 15,
@@ -27,7 +27,7 @@
         "n_epochs": 500,
         "lr": 0.001,
         "batch_size": 1000,
-        "outlier_thres_ratio": 0.005
+        "outlier_thres_ratio": 0.0005
     },
     "calib_initial": {
         "center_cam_idx": 3,
@@ -36,17 +36,26 @@
             "n_max_imgs": 40
         },
         "extrinsics": {
-            "n_max_stereo_imgs": 5
+            "n_max_stereo_imgs": 7
+        },
+        "adj_graph": {
+            "0": 2,
+            "1": 0,
+            "3": 1,
+            "6": 3,
+            "4": 6,
+            "5": 4,
+            "2": 5 
         }
     },
     "bundle_adjustment": {
         "max_iter": 1000,
         "num_thread": 4,
-        "lens_coeffs_reg_weight": 0.3,
-        "function_tolerance": 1e-10,
-        "parameter_tolerance": 1e-10,
-        "gradient_tolerance": 1e-10,
-        "inner_iteration_tolerance": 1e-10
+        "lens_coeffs_reg_weight": 0.1,
+        "function_tolerance": 1e-12,
+        "parameter_tolerance": 1e-12,
+        "gradient_tolerance": 1e-12,
+        "inner_iteration_tolerance": 1e-12
     },
     "analysis": {
         "save_reproj_err_histogram": 1,

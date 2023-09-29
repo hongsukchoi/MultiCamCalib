@@ -30,6 +30,7 @@ menu = {
     "4": "final calibration (bundle adjustment)",
     "5": "analysis",
     "5a": "render final camera & checkerboard configurations",
+    "5a_show": "show final camera & checkerboard configurations", # Custom
     "5b": "reproject world points (render histogram & reprojected images)"
 }
 
@@ -75,7 +76,7 @@ if __name__ == "__main__":
     chb_config = config["checkerboard"]
     chb = Checkerboard(chb_config["n_cols"], chb_config["n_rows"], chb_config["sqr_size"])
 
-    # Custom
+    # Custom: load image paths from folders 
     img_paths = {}
     for ci in range(config["cameras"]["n_cams"]):
         img_paths[ci] = sorted(glob.glob(os.path.join(paths["abs_input_dir"], f'images/cam_{ci}/*.jpg')))
@@ -125,6 +126,7 @@ if __name__ == "__main__":
 
         if (code_number == "2a") or (code_number == "2"):
             # generate corner crops
+            # You need to rebuild the VAE according to the crop_zie. Currently, the model is only for crop_size==15
             generate_crops_around_corners(logger, img_paths, paths, crop_size=vae_config["crop_size"])
 
         if (code_number == "2b") or (code_number == "2"):
@@ -154,11 +156,12 @@ if __name__ == "__main__":
 
         if (code_number == "4"):
             # bundle adjustment (C/C++)
-            bundle_adjustment_path = os.path.join("..", "ceres_bundle_adjustment", "build", "bin", "Release", "CeresMulticamCalib.exe")
-            bundle_adjustment_path = os.path.join(
-                "..", "ceres_bundle_adjustment", "build", "bin", "CeresMulticamCalib")
+            # Window
+            # bundle_adjustment_path = os.path.join("..", "ceres_bundle_adjustment", "build", "bin", "Release", "CeresMulticamCalib.exe")
+            # Custom: Linux
+            bundle_adjustment_path = os.path.join("..", "ceres_bundle_adjustment", "build", "bin", "CeresMulticamCalib")
 
-            assert os.path.exists(bundle_adjustment_path), "CeresMulticamCalib.exe does not exist!"
+            assert os.path.exists(bundle_adjustment_path), "CeresMulticamCalib does not exist!"
             os.system(bundle_adjustment_path)
 
         if (code_number == "5a") or (code_number == "5"):
@@ -166,6 +169,9 @@ if __name__ == "__main__":
             compute_reproj_errs = True
             cam_param_path = os.path.join(paths["cam_params"], "cam_params_final.json")
             world_points_path = os.path.join(paths["world_points"], "world_points_final.json")
+            # Custom
+            if 'show' in code_number:
+                save_path_world_points = None
             render_config(paths, cam_param_path, center_cam_idx, center_img_name, None, "Final cameras", compute_reproj_errs=compute_reproj_errs, save_path=save_path_cam_config)
             render_config(paths, cam_param_path, center_cam_idx, center_img_name, world_points_path, "Final configuration", compute_reproj_errs=compute_reproj_errs, save_path=save_path_world_points)
             logger.info("Two plots saved:\n\t{}\n\t{}".format(save_path_cam_config, save_path_world_points))
@@ -173,7 +179,6 @@ if __name__ == "__main__":
         if (code_number == "5b") or (code_number == "5"):
             reprojection_save_path = os.path.join(paths["analysis"], "reprojections.json")
             is_finished = reproject_world_points(logger, cam_param_path, world_points_path, paths, reprojection_save_path=reprojection_save_path)
-
             if is_finished:
                 analysis_config = config["analysis"]
                 save_reproj_images = analysis_config["save_reproj_images"]
