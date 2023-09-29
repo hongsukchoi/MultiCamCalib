@@ -59,11 +59,20 @@ The code execution follows the pipeline below:
 
 1. Windows
 
-    Assuming [Anaconda](https://docs.anaconda.com/anaconda/install/windows/) is already installed, navigate to *./MultiCamCalib/* where *environment.yml* exists. Then in a Anaconda Powershell Prompt:
+    Assuming [Anaconda](https://docs.anaconda.com/anaconda/install/windows/) is already installed,
 
-        conda env create --file environment.yml
+        conda env create --file windows_env.yml
 
-2. Linux (*coming...*)
+2. Linux
+
+    Install appropriate Python and Torch versions, in case you want to build an api from source.
+
+        conda env create -n multicamcalib python=3.8  
+        pip install torch==1.12.0+cu113 torchvision==0.13.0+cu113 --extra-index-url https://download.pytorch.org/whl/cu113
+
+    Install requirements
+
+        pip install -r requirements.txt
 
 (5) Run the codes → Follow [this tutorial](docs/tutorial.md)!
 

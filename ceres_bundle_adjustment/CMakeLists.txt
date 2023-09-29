@@ -12,7 +12,8 @@ set(PROJECT_OUTPUT_DIR "${PROJECT_BINARY_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PROJECT_OUTPUT_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_OUTPUT_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_OUTPUT_DIR})
-set(Ceres_DIR "/home/hongsuk.c/ceres/ceres-install/lib/cmake/Ceres")
+# You don't need to set this, if you followed the updated ceres installation - Hongsuk
+# set(Ceres_DIR "/home/hongsuk.c/ceres/ceres-install/lib/cmake/Ceres")
 
 #############################################
 if (WIN32)
@@ -34,10 +35,11 @@ if (WIN32)
 endif()
 
 
+# You don't need to set this, if you followed the updated ceres installation - Hongsuk
 #############################################
-if (UNIX AND NOT APPLE)
-# copy dlls
-    set(CERES_ROOT_DIR "/home/hongsuk.c/ceres")
+#if (UNIX AND NOT APPLE)
+    #copy dlls
+    #set(CERES_ROOT_DIR "/home/hongsuk.c/ceres")
     #set(SUITESPARSE_WIN_x64_DIR "${CERES_ROOT_DIR}/suitesparse/lapack_windows/x64")
     #set(PROJECT_OUTPUT_DIR_RELEASE "${PROJECT_OUTPUT_DIR}/Release")
     #set(DLL_PATHS
@@ -46,7 +48,7 @@ if (UNIX AND NOT APPLE)
     #)
     #file(COPY ${DLL_PATHS}
     #    DESTINATION ${PROJECT_OUTPUT_DIR_RELEASE})
-endif()
+#endif()
 #############################################
 
 configure_file(src/config.h.in ./../src/config.h)

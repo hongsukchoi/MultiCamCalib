@@ -44,4 +44,20 @@ You do not need to directly run *CeresMulticamCalib.exe*. Python codes will run 
 
 <h2>2. Linux</h2>
 
-*Coming...*
+1. Build the depdency
+strings /lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX
+    sudo apt-get install libstdc++6
+
+2. Run CMake
+
+    Install CMake if not already installed: https://cmake.org/install/
+
+    Navigate to *./ceres_bundle_adjustment*, make *build* directory, and run cmake
+
+        mkdir build
+        cd build
+        cmake ..
+
+    Make the exectuable *CeresMulticamCalib*
+    
+        make
