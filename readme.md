@@ -1,11 +1,11 @@
 
 <h1>Table of Contents</h1>
 
-1. [Introduction](#1-intro)  
+1. [Introduction](#1-introduction)  
 2. [Overview](#2-overview)  
 3. [Installation](#3-installation)
-4. [Tutorial](#4-example)
-5. [Academical details](#5-details)
+4. [Tutorial](#4-tutorial)
+5. [Academical details](#5-academical-details)
 6. [Contact](#6-contact)
 
 <h2 id="s_intro">1. Introduction</h2>
