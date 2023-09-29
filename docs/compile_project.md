@@ -45,8 +45,15 @@ You do not need to directly run *CeresMulticamCalib.exe*. Python codes will run 
 <h2>2. Linux</h2>
 
 1. Build the depdency
-strings /lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX
-    sudo apt-get install libstdc++6
+    If you can't find `GLIBCXX_3.4.30` by running
+    
+        strings /lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX
+    
+    Please install it as follows
+
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+        sudo apt-get update
+        sudo apt-get install libstdc++6
 
 2. Run CMake
 
@@ -58,10 +65,13 @@ strings /lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX
         cd build
         cmake ..
 
-    Make the exectuable *CeresMulticamCalib*
+3. Make runnable *CeresMulticamCalib*
+    
+    Compile the exectuable *CeresMulticamCalib*
 
         make
 
-    Replace `ROOT_DIR` of `/path/to/ceres_bundle_adjustment/config.h` in L6
+
+    For the python code, replace `ROOT_DIR` of `/path/to/ceres_bundle_adjustment/config.h` in L6
 
         L6: #define ROOT_DIR "/home/hongsuk.c/Projects/MultiCamCalib/ceres_bundle_adjustment"

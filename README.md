@@ -1,12 +1,13 @@
 # Disclaimer
 
-This repository is slightly modified from the original multi-view camera calibration repository [here](https://github.com/hjoonpark/MultiCamCalib/tree/master) to make it work in Linux environment and a more sparse view setting (7 RealSense 435 cameras, no depth used, highly different viewing angles).
+This repository is slightly modified from the original multi-view camera calibration repository [here](https://github.com/hjoonpark/MultiCamCalib/tree/master) to make it work in Linux environment and a more casual setting (7 RealSense 435 cameras, no depth used, highly different viewing angles). The original code was based on Windows and tested with 16 high performing RGB cameras that are closely adjacent with similar viewing angles. 
 
 I (Hongsuk Choi) only modified a small portion of
 - Installation guidelines for Linux environment
 - C++ code of Ceres bundle adjustment
 - Initial multi-view calibration before bundle adjustment
 
+Great thanks to Hyojoon Park for the awesome code. Contact to `redstonepo@gmail.com` if anyone has questions about the code I modified. 
 
 <h1>Table of Contents</h1>
 
