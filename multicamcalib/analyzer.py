@@ -209,7 +209,8 @@ def render_reprojection_results(logger, paths, save_reproj_err_histogram=True, s
 
         # Custom
         img_paths = {}
-        for ci in range(7):
+        # for ci in range(7):
+        for ci in cam_params.keys():
             img_paths[ci] = sorted(glob.glob(os.path.join(
                 paths["abs_input_dir"], f'images/cam_{ci}/*.jpg')))
 
@@ -229,7 +230,6 @@ def render_reprojection_results(logger, paths, save_reproj_err_histogram=True, s
 
         pbar = tqdm(total=n_total)
         n_imgs = 0
-
         for img_name, err in errors_for_lookup.items():
             if err > error_thres:
                 pbar.update(1)
@@ -293,6 +293,7 @@ def render_reprojection_results(logger, paths, save_reproj_err_histogram=True, s
                 plt.close()
                 n_imgs += 1
                 logger.debug("Image saved: {}".format(save_path))
+
         pbar.close()
         
         logger.info("Finished rendering: {} images".format(n_imgs))

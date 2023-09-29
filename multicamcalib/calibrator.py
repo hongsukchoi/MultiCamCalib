@@ -149,7 +149,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         corner2_paths = glob.glob(os.path.join(os.path.join(corners_dir, "cam_{}".format(cam_idx_2)), "*.txt"))
         cam_idx_1 = (cam_idx_2 + 1) if cam_idx_2 < center_cam_idx else cam_idx_2 - 1
         
-        # custom
+        # Custom
         cam_idx_1 = center_cam_idx
         # cam_idx_1 = calib_config["adj_graph"][str(cam_idx_2)]
         
@@ -207,7 +207,7 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
         flags |= cv2.CALIB_FIX_ASPECT_RATIO
         flags |= cv2.CALIB_ZERO_TANGENT_DIST
         # flags |= cv2.CALIB_RATIONAL_MODEL
-        # flags |= cv2.CALIB_SAME_FOCAL_LENGTH  # Don't do this!!!
+        # flags |= cv2.CALIB_SAME_FOCAL_LENGTH  # Don't do this!!! - Hongsuk
         # flags |= cv2.CALIB_FIX_K1
         # flags |= cv2.CALIB_FIX_K2
         # flags |= cv2.CALIB_FIX_K3
@@ -246,16 +246,6 @@ def calib_initial_params(logger, paths, calib_config, chb, outlier_path=None, sa
     R, _ = cv2.Rodrigues(np.float32(cam_params[center_cam_idx]["rvec"]))
     t = np.float32(cam_params[center_cam_idx]["tvec"]).reshape(3, 1)
 
-    """ hard coding
-    "0": 2,
-    "1": 0,
-    "3": 1,
-    "6": 3,
-    "4": 6,
-    "5": 4,
-    "2": 5 
-    """
-    # adj_cam_indices = [6, 4, 5, 2, 0, 1]
     for cam_idx in adj_cam_indices:
         assert(cam_idx != center_cam_idx)
 

@@ -8,8 +8,8 @@ from collections import defaultdict
 
 
 if __name__ == '__main__':
-    data_dir = "../data/handnerf_0818/validation"
-    calibration_path = "../data/handnerf_0818/output/cam_params/cam_params_final.json"
+    data_dir = "../data/handnerf_09282023/validation_depth"
+    calibration_path = "../data/handnerf_09282023/output/cam_params/cam_params_final.json"
 
     # read calibration data
     with open(calibration_path, 'r') as f:
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         print("Scene ", data_idx)
         
         pointcloud_list = []
-        for cam_idx in [1,2,3,4,5]:
+        for cam_idx in [1,2,3,4,5, 6]:
             print("Cam idx: ", cam_idx)
             # make open3d RGBD image
             rgb_path = rgb_paths[cam_idx][data_idx]
