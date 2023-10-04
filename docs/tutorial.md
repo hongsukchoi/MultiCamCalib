@@ -3,7 +3,9 @@
 You can find the original tutorial of `hjoonpark` [here](https://github.com/hjoonpark/MultiCamCalib/blob/master/docs/tutorial.md).
 The tutorial below is summarized and slightly modified from the original tutorial for my (Hongsuk Choi) purpose.
 
-An example dataset can be found [here](). __Waiting for permission.__ Download and palce it as below: 
+> Please use the example data in hjoonpark's repository after you install the environment for now (10/04/2023).
+
+Example data can be found [here](). __Waiting for permission.__ Download and place it as below: 
 
 >The example data and the example `config.json`  assumes:
 >- 7 synchronized RGB cameras, 
